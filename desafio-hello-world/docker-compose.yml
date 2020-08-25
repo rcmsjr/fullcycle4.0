@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  nodejs:
+    image: node:12.18.3-alpine3.12
+    container_name: full-cycle-nodejs
+    working_dir: /opt/full-cycle
+    tty: true
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/opt/full-cycle
