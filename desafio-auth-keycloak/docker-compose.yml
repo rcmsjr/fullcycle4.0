@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: fullcycle-keycloak-postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: ukeycloak
+      POSTGRES_PASSWORD: pkeycloak
+    networks:
+      - backend
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:11.0.1
+    container_name: fullcycle-keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: ukeycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: pkeycloak
+      KEYCLOAK_USER: uadmin
+      KEYCLOAK_PASSWORD: padmin
+    tty: true
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  golang:
+    image: golang
+    container_name: fullcycle-go
+    working_dir: /opt/full-cycle
+    tty: true
+    ports:
+      - 8081:8081
+    volumes:
+      - ./src:/opt/full-cycle
+    depends_on:
+      - keycloak
+    links:
+      - "keycloak:local.dislackord.com"
+    networks:
+      - backend
+
+volumes:
+  postgres:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge
